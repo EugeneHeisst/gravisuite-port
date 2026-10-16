@@ -8,10 +8,10 @@
 - [x] Ten original component/pack recipes with IC2 charge preservation and recipe flags.
 - [x] Dedicated isolated server: 122 checks passed.
 - [x] Hidden client: models, translated names, worn pack textures and JEI.
-- [ ] Advanced drill: four modes and safe 3×3 harvesting.
-- [ ] Advanced chainsaw: powered combat and configurable block/entity shearing.
-- [ ] GraviTool: hoe, treetap, wrench, screwdriver and changing model.
-- [ ] Vajra: fast universal mining, accurate silk mode, combat.
+- [x] Advanced drill: four modes and safe 3×3 harvesting.
+- [x] Advanced chainsaw: powered combat and configurable block/entity shearing.
+- [x] GraviTool: hoe, treetap, wrench, screwdriver and changing model.
+- [x] Vajra: fast universal mining, accurate silk mode, combat.
 - [ ] Advanced jetpack, advanced nano chest, GraviChestPlate.
 - [ ] Fly key, hover/boost, original EU costs, native multiplayer anti-floating.
 - [ ] Nano water-cell extinguishing; Gravi fire immunity and dyeable textures.

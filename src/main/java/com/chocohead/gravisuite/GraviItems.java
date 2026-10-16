@@ -18,5 +18,9 @@ public final class GraviItems {
  public static final Holder<ArmorMaterial> ADVANCED_MATERIAL=material("advanced_lappack"),ULTIMATE_MATERIAL=material("ultimate_lappack");
  public static final DeferredItem<ItemArmorBatpack> ADVANCED_LAPPACK=ITEMS.register("advanced_lappack",()->new ItemArmorBatpack(ADVANCED_MATERIAL,new Item.Properties().rarity(Rarity.UNCOMMON),3e6,30000,3));
  public static final DeferredItem<ItemArmorBatpack> ULTIMATE_LAPPACK=ITEMS.register("ultimate_lappack",()->new ItemArmorBatpack(ULTIMATE_MATERIAL,new Item.Properties().rarity(Rarity.RARE),6e7,100000,4));
+ public static final DeferredItem<com.chocohead.gravisuite.items.ItemAdvancedDrill> ADVANCED_DRILL=ITEMS.register("advanced_drill",()->new com.chocohead.gravisuite.items.ItemAdvancedDrill(new Item.Properties()));
+ public static final DeferredItem<com.chocohead.gravisuite.items.ItemAdvancedChainsaw> ADVANCED_CHAINSAW=ITEMS.register("advanced_chainsaw",()->new com.chocohead.gravisuite.items.ItemAdvancedChainsaw(new Item.Properties()));
+ public static final DeferredItem<com.chocohead.gravisuite.items.ItemGraviTool> GRAVITOOL=ITEMS.register("gravitool",()->new com.chocohead.gravisuite.items.ItemGraviTool(new Item.Properties()));
+ public static final DeferredItem<com.chocohead.gravisuite.items.ItemVajra> VAJRA=ITEMS.register("vajra",()->new com.chocohead.gravisuite.items.ItemVajra(new Item.Properties()));
  public static final java.util.function.Supplier<CreativeModeTab> TAB=TABS.register("main",()->CreativeModeTab.builder().title(Component.literal("Gravitation Suite PORT")).icon(()->new ItemStack(ULTIMATE_LAPPACK.get())).displayItems((parameters,out)->{for(var entry:ITEMS.getEntries()){var item=entry.get();out.accept(item);if(item instanceof ic2.api.item.IElectricItem){var stack=new ItemStack(item);ic2.api.item.ElectricItem.manager.charge(stack,Double.POSITIVE_INFINITY,Integer.MAX_VALUE,true,false);out.accept(stack);}}}).build());
 }

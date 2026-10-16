@@ -1,0 +1,33 @@
+{
+  "type": "ic2:shaped",
+  "category": "equipment",
+  "pattern": [
+    " D ",
+    "OCO",
+    "AOA"
+  ],
+  "key": {
+    "D": {
+      "tag": "c:gems/diamond"
+    },
+    "O": {
+      "item": "ic2:overclocker_upgrade"
+    },
+    "C": {
+      "item": "ic2:chainsaw"
+    },
+    "A": {
+      "item": "ic2:advanced_circuit"
+    }
+  },
+  "result": {
+    "id": "gravisuite:advanced_chainsaw",
+    "count": 1
+  },
+  "neoforge:conditions": [
+    {
+      "type": "gravisuite:config",
+      "key": "advanced_chainsaw"
+    }
+  ]
+}

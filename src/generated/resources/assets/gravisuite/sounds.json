@@ -1,0 +1,32 @@
+{
+  "tool_change": {
+    "category": "player",
+    "sounds": [
+      "gravisuite:toolchange"
+    ]
+  },
+  "wrench": {
+    "category": "player",
+    "sounds": [
+      "gravisuite:wrench"
+    ]
+  },
+  "treetap": {
+    "category": "player",
+    "sounds": [
+      "gravisuite:treetap"
+    ]
+  },
+  "jetpack_loop": {
+    "category": "player",
+    "sounds": [
+      "gravisuite:jetpackloop"
+    ]
+  },
+  "jetpack_fire": {
+    "category": "player",
+    "sounds": [
+      "gravisuite:jetpackfire"
+    ]
+  }
+}

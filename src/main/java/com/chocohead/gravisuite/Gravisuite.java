@@ -9,5 +9,5 @@ public final class Gravisuite {
  public static final String MODID="gravisuite";
  public static final org.slf4j.Logger LOG=org.slf4j.LoggerFactory.getLogger("GravitationSuite");
  public static ResourceLocation id(String path){return ResourceLocation.fromNamespaceAndPath(MODID,path);}
- public Gravisuite(IEventBus bus,ModContainer container){container.registerConfig(ModConfig.Type.COMMON,Config.SPEC);GraviItems.MATERIALS.register(bus);GraviItems.ITEMS.register(bus);GraviItems.TABS.register(bus);ConfigCondition.REGISTRY.register(bus);}
+ public Gravisuite(IEventBus bus,ModContainer container){container.registerConfig(ModConfig.Type.COMMON,Config.SPEC);GraviItems.MATERIALS.register(bus);GraviItems.ITEMS.register(bus);GraviItems.TABS.register(bus);GraviSounds.REGISTRY.register(bus);ConfigCondition.REGISTRY.register(bus);}
 }

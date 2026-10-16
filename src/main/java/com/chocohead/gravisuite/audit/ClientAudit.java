@@ -24,6 +24,13 @@ public final class ClientAudit {
   if(tick==85)shot(mc,"advanced_lappack_worn");
   if(tick==90)server.execute(()->server.getPlayerList().getPlayers().getFirst().setItemSlot(EquipmentSlot.CHEST,GraviItems.ULTIMATE_LAPPACK.get().charged()));
   if(tick==110){shot(mc,"ultimate_lappack_worn");Gravisuite.LOG.info("[gravisuite-client-audit] DONE");}
-  if(tick>=115)mc.stop();
+  if(tick==112)server.execute(()->{var p=server.getPlayerList().getPlayers().getFirst();p.setItemSlot(EquipmentSlot.CHEST,ItemStack.EMPTY);p.getInventory().clearContent();p.getInventory().selected=0;
+   p.getInventory().setItem(0,GraviItems.ADVANCED_DRILL.get().getItemStack(45000));p.getInventory().setItem(1,GraviItems.ADVANCED_CHAINSAW.get().getItemStack(45000));p.getInventory().setItem(2,GraviItems.VAJRA.get().getItemStack(1e7));
+   for(int i=0;i<4;i++){var t=new ItemStack(GraviItems.GRAVITOOL.get());com.chocohead.gravisuite.items.ItemGraviTool.saveMode(t,com.chocohead.gravisuite.items.ItemGraviTool.Mode.values()[i]);p.getInventory().setItem(3+i,t);}
+   p.getInventory().setItem(7,new ItemStack(GraviItems.GRAVITOOL.get()));});
+  if(tick==118){for(int i=3;i<7;i++){var s=mc.player.getInventory().getItem(i);var sprite=mc.getItemRenderer().getModel(s,mc.level,mc.player,0).getParticleIcon(net.neoforged.neoforge.client.model.data.ModelData.EMPTY).contents().name().getPath();String want="items/gravitool/"+com.chocohead.gravisuite.items.ItemGraviTool.Mode.values()[i-3].name().toLowerCase(java.util.Locale.ROOT);Gravisuite.LOG.info("[gravisuite-client-audit] {} GraviTool mode model {} -> {}",sprite.equals(want)?"PASS":"FAIL",want,sprite);}}
+  if(tick==120)mc.setScreen(new InventoryScreen(mc.player));
+  if(tick==130){shot(mc,"tools");mc.setScreen(null);}
+  if(tick>=135)mc.stop();
  }
 }

@@ -1,0 +1,29 @@
+{
+  "parent": "gravisuite:item/gravitool/hoe",
+  "overrides": [
+    {
+      "predicate": {
+        "gravisuite:mode": 0.0
+      },
+      "model": "gravisuite:item/gravitool/hoe"
+    },
+    {
+      "predicate": {
+        "gravisuite:mode": 0.25
+      },
+      "model": "gravisuite:item/gravitool/treetap"
+    },
+    {
+      "predicate": {
+        "gravisuite:mode": 0.5
+      },
+      "model": "gravisuite:item/gravitool/wrench"
+    },
+    {
+      "predicate": {
+        "gravisuite:mode": 0.75
+      },
+      "model": "gravisuite:item/gravitool/screwdriver"
+    }
+  ]
+}

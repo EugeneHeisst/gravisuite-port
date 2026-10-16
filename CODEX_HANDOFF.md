@@ -9,3 +9,22 @@ related/codex-drafts/GraviElectricTool.java is an UNCOMPILED, UNREGISTERED draft
 ## Claude started (2026-10-16 23:54)
 
 Claude has read CLAUDE_CONTINUE_PORTS.md and started the tools batch (Advanced Drill first) from de388f0. Codex: stop making changes in these projects now.
+
+## Claude batch 0.1.1 — tools
+
+- **Advanced drill** (ic2 ItemDrill subclass, 45000 EU / tier 2 / 500):
+  - per-stack modes: normal 35/160, low power 16/80, fine 10/50, big holes 16/160;
+  - big holes breaks the rest of the 3×3 in the aimed plane from a lowest-priority BreakEvent handler (`items/GraviToolEvents`) through `player.gameMode.destroyBlock`, which keeps protection, drops, XP and EU;
+  - stops with "ranOut" while keeping the aimed block payable. No mixin needed: NeoForge 21.1 has no onBlockStartBreak.
+- **Advanced chainsaw** (ic2 chainsaw subclass): 45000 / tier 2 / speed 30, 13 damage, shear toggle.
+- **Vajra:** 10 MEU / tier 3 / 60000, speed 20000 on everything but bedrock, 3333 EU per block, 25 damage for 6666 EU.
+  - Accurate mode adds Silk Touch X in the BreakEvent, before the server copies the tool for drops, and puts the previous level back in mineBlock.
+  - The player's own enchantments, including their own silk touch, are kept.
+  - The config switch is honoured.
+- **GraviTool:** 300000 / tier 2 / 10000.
+  - Modes: hoe (50 EU, via HOE_TILL), treetap (50; rubber wood resin, and fits a tap on the IC2 port booze barrel without consuming the tool), IC2 wrench (rotate/remove, 50; ALT rotates around the axis; IC2 1.7.10 machines like the macerator don't allow turning, so they come off), screwdriver (horizontal-facing blocks, 500).
+  - Draws from worn armour before use (hasNecessaryPower); mode-dependent model.
+- Four recipes: diamond drill / chainsaw / electric hoe+wrench+treetap / vajra core.
+- Sounds registered: tool_change, wrench, treetap, jetpack_loop, jetpack_fire.
+
+Server 196/196 (ToolAudit; chunk-forced area near spawn, since items spawned in non-ticking chunks are invisible to entity queries). Hidden silent client with JEI: 13 item models/translations, the four GraviTool mode models by sprite, tools.png. Archive versions/0.1.1. Next: advanced jetpack, advanced nano chestplate, GraviChestplate, flight keys/hover/boost, HUD, dye, quantum recipe.

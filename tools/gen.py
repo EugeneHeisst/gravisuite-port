@@ -33,4 +33,20 @@ recipe('magnetron','magnetron',['ICI','CSC','ICI'],{'I':'#c:plates/iron','C':'#c
 recipe('vajra_core','vajra_core',[' M ','PTP','SHS'],{'M':'magnetron','P':'ic2:iridium_plate','T':'ic2:tesla_coil','S':'superconductor','H':'ic2:hv_transformer'},flag='vajra')
 recipe('advanced_lappack','advanced_lappack',['P','C','E'],{'P':'ic2:energy_pack','C':'ic2:advanced_circuit','E':'ic2:energy_crystal'},flag='advanced_lappack')
 for pack in ['lappack','advanced_lappack']:recipe('ultimate_lappack_from_'+pack,'ultimate_lappack',['CPC','CLC','CSC'],{'C':'ic2:lapotron_crystal','P':'ic2:iridium_plate','L':'ic2:lappack' if pack=='lappack' else pack,'S':'superconductor'},flag='ultimate_lappack')
+# ---------- tools
+tools={'advanced_drill':'advanceddrill','advanced_chainsaw':'advancedchainsaw','vajra':'vajra'}
+for key,tex in tools.items():dump(A/'models/item'/f'{key}.json',{'parent':'minecraft:item/handheld','textures':{'layer0':'gravisuite:items/'+tex}})
+modes=['hoe','treetap','wrench','screwdriver']
+for m in modes:dump(A/'models/item/gravitool'/f'{m}.json',{'parent':'minecraft:item/handheld','textures':{'layer0':'gravisuite:items/gravitool/'+m}})
+dump(A/'models/item/gravitool.json',{'parent':'gravisuite:item/gravitool/hoe','overrides':[{'predicate':{'gravisuite:mode':i/4},'model':'gravisuite:item/gravitool/'+m} for i,m in enumerate(modes)]})
+for locale in ['en_us','ru_ru']:
+ f=A/'lang'/f'{locale}.json';lang=json.loads(f.read_text())
+ for key,old in {'advanced_drill':'advancedDrill','advanced_chainsaw':'advancedChainsaw','gravitool':'graviTool','vajra':'vajra'}.items():lang['item.gravisuite.'+key]=lang.get('gravisuite.'+old,key)
+ dump(f,lang)
+sounds={'tool_change':'toolchange','wrench':'wrench','treetap':'treetap','jetpack_loop':'jetpackloop','jetpack_fire':'jetpackfire'}
+dump(A/'sounds.json',{k:{'category':'player','sounds':['gravisuite:'+v]} for k,v in sounds.items()})
+recipe('advanced_drill','advanced_drill',['ODO','COC'],{'O':'ic2:overclocker_upgrade','D':'ic2:diamond_drill','C':'ic2:advanced_circuit'},flag='advanced_drill')
+recipe('advanced_chainsaw','advanced_chainsaw',[' D ','OCO','AOA'],{'D':'#c:gems/diamond','O':'ic2:overclocker_upgrade','C':'ic2:chainsaw','A':'ic2:advanced_circuit'},flag='advanced_chainsaw')
+recipe('gravitool','gravitool',['PHP','AEA','WCT'],{'P':'ic2:carbon_plate','H':'ic2:electric_hoe','A':'ic2:advanced_alloy','E':'ic2:energy_crystal','W':'ic2:electric_wrench','C':'ic2:advanced_circuit','T':'ic2:electric_treetap'},flag='gravitool')
+recipe('vajra','vajra',['PEP','CVC','ALA'],{'P':'#c:plates/iron','E':'ic2:energy_crystal','C':'ic2:carbon_plate','V':'vajra_core','A':'ic2:advanced_alloy','L':'ic2:lapotron_crystal'},flag='vajra')
 print('Generated7components,2electricpacks,10nativeIC2charge-preserving recipes')
