@@ -55,7 +55,7 @@ public class ItemAdvancedDrill extends ItemDrill {
     public static void saveMode(ItemStack stack, DrillMode mode) { CustomData.update(DataComponents.CUSTOM_DATA, stack, t -> t.putInt("toolMode", mode.ordinal())); }
 
     /** The current mode's cost (the original kept it in the shared item; here it follows each stack). */
-    public double getEnergyCost(ItemStack stack) { return readMode(stack).energyCost; }
+    @Override public double getEnergyCost(ItemStack stack) { return readMode(stack).energyCost; }
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
