@@ -5,3 +5,7 @@ First batch 0.1.0 is implemented and tested: seven components, Advanced Lappack 
 Reference: related/gravisuite-reference/original.jar and decompiled/com/chocohead/gravisuite. Original user upload remains untouched. Next: remaining four tools, three flight chests, keys/HUD/dye/quantum recipe and combined tests. See PORT_TODO.md and ../CLAUDE_CONTINUE_PORTS.md.
 
 related/codex-drafts/GraviElectricTool.java is an UNCOMPILED, UNREGISTERED draft for drill/chainsaw/Vajra. Review it before using. GraviTool not drafted. Do not count any tools or flight as implemented. All tests are isolated, nothing published or installed. Legacy textures/items need assets/minecraft/atlases/blocks.json; the namespace-specific atlas does not work. All commands require JAVA_HOME=/usr/lib/jvm/java-21-openjdk (default java is8).
+
+## Claude started (2026-10-16 23:54)
+
+Claude has read CLAUDE_CONTINUE_PORTS.md and started the tools batch (Advanced Drill first) from de388f0. Codex: stop making changes in these projects now.
