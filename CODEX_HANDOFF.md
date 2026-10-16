@@ -56,3 +56,7 @@ Results:
 - Archive versions/0.1.2.
 
 Next: combined IC2 + ASP + EMT + Gravi + Thaumcraft + JEI compatibility (client and dedicated server), then final comparison with originals.
+
+## Stop point (Claude, 2026-10-17 ~00:20)
+
+User moved work to another session. Gravi is at 0.1.2 / 78016e0, clean tree. IC2 0.1.19 / 1641a91 adds ItemElectricTool.getEnergyCost(ItemStack); ItemAdvancedDrill.getEnergyCost already matches it and becomes an override once Gravi builds against 0.1.19. Next: the combined-compatibility batch described in ../CLAUDE_CONTINUE_PORTS.md (bump addons to IC2 0.1.19, EMT bore bridge to getEnergyCost, EMT authors field, combined server/client test).
