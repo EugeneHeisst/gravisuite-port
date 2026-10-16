@@ -1,0 +1,27 @@
+{
+  "type": "ic2:shaped",
+  "category": "equipment",
+  "pattern": [
+    "CSC",
+    "HPH",
+    "CSC"
+  ],
+  "key": {
+    "C": {
+      "item": "ic2:hex_heat_storage"
+    },
+    "S": {
+      "item": "ic2:advanced_heat_exchanger"
+    },
+    "H": {
+      "item": "ic2:heat_plating"
+    },
+    "P": {
+      "item": "ic2:iridium_plate"
+    }
+  },
+  "result": {
+    "id": "gravisuite:cooling_core",
+    "count": 1
+  }
+}

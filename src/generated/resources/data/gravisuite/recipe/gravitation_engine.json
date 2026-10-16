@@ -1,0 +1,27 @@
+{
+  "type": "ic2:shaped",
+  "category": "equipment",
+  "pattern": [
+    "TST",
+    "CHC",
+    "TST"
+  ],
+  "key": {
+    "T": {
+      "item": "ic2:tesla_coil"
+    },
+    "S": {
+      "item": "gravisuite:superconductor"
+    },
+    "C": {
+      "item": "gravisuite:cooling_core"
+    },
+    "H": {
+      "item": "ic2:hv_transformer"
+    }
+  },
+  "result": {
+    "id": "gravisuite:gravitation_engine",
+    "count": 1
+  }
+}

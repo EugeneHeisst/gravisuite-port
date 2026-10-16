@@ -1,0 +1,36 @@
+{
+  "type": "ic2:shaped",
+  "category": "equipment",
+  "pattern": [
+    "GAG",
+    "COC",
+    "AVA"
+  ],
+  "key": {
+    "G": {
+      "item": "minecraft:glowstone_dust"
+    },
+    "A": {
+      "item": "ic2:advanced_alloy"
+    },
+    "C": {
+      "item": "ic2:advanced_circuit"
+    },
+    "O": {
+      "item": "ic2:overclocker_upgrade"
+    },
+    "V": {
+      "item": "ic2:advanced_heat_vent"
+    }
+  },
+  "result": {
+    "id": "gravisuite:engine_booster",
+    "count": 1
+  },
+  "neoforge:conditions": [
+    {
+      "type": "gravisuite:config",
+      "key": "advanced_jetpack"
+    }
+  ]
+}

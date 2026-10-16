@@ -1,0 +1,24 @@
+{
+  "type": "ic2:shaped",
+  "category": "equipment",
+  "pattern": [
+    "APA",
+    "CCC",
+    "APA"
+  ],
+  "key": {
+    "A": {
+      "item": "ic2:advanced_alloy"
+    },
+    "P": {
+      "item": "ic2:iridium_plate"
+    },
+    "C": {
+      "item": "ic2:carbon_plate"
+    }
+  },
+  "result": {
+    "id": "gravisuite:superconductor_cover",
+    "count": 3
+  }
+}

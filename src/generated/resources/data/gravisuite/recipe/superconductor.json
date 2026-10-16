@@ -1,0 +1,24 @@
+{
+  "type": "ic2:shaped",
+  "category": "equipment",
+  "pattern": [
+    "SSS",
+    "CGC",
+    "SSS"
+  ],
+  "key": {
+    "S": {
+      "item": "gravisuite:superconductor_cover"
+    },
+    "G": {
+      "tag": "c:ingots/gold"
+    },
+    "C": {
+      "item": "ic2:glass_fibre_cable"
+    }
+  },
+  "result": {
+    "id": "gravisuite:superconductor",
+    "count": 3
+  }
+}

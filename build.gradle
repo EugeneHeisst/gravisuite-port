@@ -1,0 +1,31 @@
+plugins { id 'java-library'; id 'net.neoforged.moddev' version '2.0.148' }
+version = '0.1.0'
+group = 'dev.eugheist'
+base { archivesName = 'gravisuite-modern' }
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
+// the IC2 PORT jar this addon is built and tested against (archived by the IC2 project in versions/<ver>/)
+def ic2Jar = file("../industrialcraft2-modern/versions/${ic2_version}/industrialcraft2-modern-${ic2_version}.jar")
+def jeiJar = '/home/eugheist/.local/share/PrismLauncher/instances/1.21.1/minecraft/mods/jei-1.21.1-neoforge-19.57.0.451.jar'
+neoForge {
+    version = '21.1.256'
+    parchment { mappingsVersion = '2024.11.17'; minecraftVersion = '1.21.1' }
+    runs {
+        client { client(); gameDirectory = file('run'); programArguments.addAll '--width', '1280', '--height', '900' }
+        server { server(); gameDirectory = file('run-server'); programArgument '--nogui' }
+        audit {
+            client()
+            gameDirectory = file('run-audit')
+            programArguments.addAll '--width', '1280', '--height', '900', '--quickPlaySingleplayer', 'GraviAudit'
+            systemProperty 'gravisuite.audit', 'client'
+        }
+    }
+    mods { gravisuite { sourceSet sourceSets.main } }
+}
+dependencies {
+    implementation files(ic2Jar)
+    compileOnly files(jeiJar)
+    if (providers.gradleProperty('withJei').getOrElse('false').toBoolean()) runtimeOnly files(jeiJar)
+}
+processResources { inputs.property 'version', version; inputs.property 'ic2_version', ic2_version; filesMatching('META-INF/neoforge.mods.toml') { expand version: version, ic2_version: ic2_version } }
