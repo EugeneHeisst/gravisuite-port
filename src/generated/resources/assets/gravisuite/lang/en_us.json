@@ -81,5 +81,10 @@
   "item.gravisuite.advanced_drill": "Advanced Diamond Drill",
   "item.gravisuite.advanced_chainsaw": "Advanced Chainsaw",
   "item.gravisuite.gravitool": "GraviTool",
-  "item.gravisuite.vajra": "Vajra"
+  "item.gravisuite.vajra": "Vajra",
+  "item.gravisuite.advanced_jetpack": "Advanced Electric Jetpack",
+  "item.gravisuite.advanced_nano_chestplate": "Advanced NanoChestplate",
+  "item.gravisuite.gravi_chestplate": "GraviChestPlate",
+  "key.categories.gravisuite": "Gravisuite",
+  "Gravi Fly Key": "Gravi Fly Key"
 }

@@ -1,0 +1,36 @@
+{
+  "type": "ic2:shaped",
+  "category": "equipment",
+  "pattern": [
+    "SAS",
+    "DBD",
+    "SCS"
+  ],
+  "key": {
+    "S": {
+      "item": "gravisuite:superconductor"
+    },
+    "A": {
+      "item": "ic2:quantum_chestplate"
+    },
+    "D": {
+      "item": "gravisuite:gravitation_engine"
+    },
+    "B": {
+      "item": "ic2:hv_transformer"
+    },
+    "C": {
+      "item": "gravisuite:ultimate_lappack"
+    }
+  },
+  "result": {
+    "id": "gravisuite:gravi_chestplate",
+    "count": 1
+  },
+  "neoforge:conditions": [
+    {
+      "type": "gravisuite:config",
+      "key": "gravi_chestplate"
+    }
+  ]
+}

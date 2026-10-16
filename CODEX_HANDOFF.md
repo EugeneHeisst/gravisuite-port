@@ -28,3 +28,31 @@ Claude has read CLAUDE_CONTINUE_PORTS.md and started the tools batch (Advanced D
 - Sounds registered: tool_change, wrench, treetap, jetpack_loop, jetpack_fire.
 
 Server 196/196 (ToolAudit; chunk-forced area near spawn, since items spawned in non-ticking chunks are invisible to entity queries). Hidden silent client with JEI: 13 item models/translations, the four GraviTool mode models by sprite, tools.png. Archive versions/0.1.1. Next: advanced jetpack, advanced nano chestplate, GraviChestplate, flight keys/hover/boost, HUD, dye, quantum recipe.
+
+## Claude batch 0.1.2 — flight chest pieces, keys, HUD, dye, quantum recipe
+
+- **Jetpack logic.** IC2 2.8 is the API Gravi 3.1.1 builds on, so its jetpack interfaces are copied as `jetpack/IJetpack` and `IBoostingJetpack`, with `JetpackLogic` and its tick:
+  - decompiled from IC2 2.8.222 (copied read-only to related/ic2-112-reference);
+  - jump flies, forward pushes, boost adds thrust, mode switch + jump toggles hover, landing ends hover;
+  - the ceiling is world height / divisor; above it the thrust fades;
+  - the IC2 port's `Util.resetPlayerInAirTime` is used.
+- **Fly key.** Gravi Fly Key (F) via `GraviKeys.FlyKeyPayload`, toggling the engine with a 10-tick debounce.
+- **Chest pieces:**
+  - Advanced jetpack: 3 MEU / tier 3 / 30000, thrust 0.3, hover 0.65, boost 60 EU, 6 EU per drain point.
+  - Advanced nano chestplate: same jetpack plus 0.9 protection at 800 EU per point. While burning it uses a water cell from the inventory once a second for 50000 EU, taken from the chestplate (the original tried to take it from the cell).
+  - GraviChestPlate: 60 MEU / tier 4 / 100000, power 1.5, 278 EU per flying tick, boost 834, needs 10000 EU, divisor 0.9107, protection 1.1 at 20000 EU per point, always extinguished. Dyeable (minecraft:dyeable tag, overlay layer `_layer_1_overlay`, white when undyed, item tint).
+- **HUD.** `client/GravisuiteOverlay`, client config enableHud / hudPosition 1-4.
+- **Recipes.** Three more recipes (17 in total). `gravisuite:config_choice` overrides `ic2:quantum_chestplate`: the advanced nano chestplate recipe, or IC2's own when replaceQuantumRecipe=false.
+- **Jetpack loop sound.**
+
+Results:
+- Server 248/248 (FlightAudit).
+- Disabled-config run: only 4 recipes, IC2 quantum recipe kept, config restored byte-identical.
+- Hidden silent client: all worn textures incl. undyed/red Gravi, real singleplayer flight +19.5 blocks, HUD.
+- **Multiplayer** `./mp-flight-audit.sh` (dedicated, allow-flight=false, port 25585):
+  - fly key over the network turns the engine on;
+  - the player climbs 106 blocks without a kick (max floating counter 24);
+  - with the reset disabled → kicked after 80 ticks.
+- Archive versions/0.1.2.
+
+Next: combined IC2 + ASP + EMT + Gravi + Thaumcraft + JEI compatibility (client and dedicated server), then final comparison with originals.

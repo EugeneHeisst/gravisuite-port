@@ -49,4 +49,23 @@ recipe('advanced_drill','advanced_drill',['ODO','COC'],{'O':'ic2:overclocker_upg
 recipe('advanced_chainsaw','advanced_chainsaw',[' D ','OCO','AOA'],{'D':'#c:gems/diamond','O':'ic2:overclocker_upgrade','C':'ic2:chainsaw','A':'ic2:advanced_circuit'},flag='advanced_chainsaw')
 recipe('gravitool','gravitool',['PHP','AEA','WCT'],{'P':'ic2:carbon_plate','H':'ic2:electric_hoe','A':'ic2:advanced_alloy','E':'ic2:energy_crystal','W':'ic2:electric_wrench','C':'ic2:advanced_circuit','T':'ic2:electric_treetap'},flag='gravitool')
 recipe('vajra','vajra',['PEP','CVC','ALA'],{'P':'#c:plates/iron','E':'ic2:energy_crystal','C':'ic2:carbon_plate','V':'vajra_core','A':'ic2:advanced_alloy','L':'ic2:lapotron_crystal'},flag='vajra')
+# ---------- flight chests
+chests={'advanced_jetpack':'advancedjetpack','advanced_nano_chestplate':'advancednanochestplate','gravi_chestplate':'gravichestplate'}
+for key,tex in chests.items():
+ dump(A/'models/item'/f'{key}.json',{'parent':'minecraft:item/generated','textures':{'layer0':'gravisuite:items/'+tex}})
+ q=A/'textures/models/armor'/f'{key}_layer_1.png';q.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(REF/'textures/armour'/f'{tex}.png',q)
+shutil.copy2(REF/'textures/armour/gravichestplateoverlay.png',A/'textures/models/armor/gravi_chestplate_layer_1_overlay.png')
+for locale in ['en_us','ru_ru']:
+ f=A/'lang'/f'{locale}.json';lang=json.loads(f.read_text())
+ for key,old in {'advanced_jetpack':'advancedJetpack','advanced_nano_chestplate':'advancedNanoChestplate','gravi_chestplate':'graviChestplate'}.items():lang['item.gravisuite.'+key]=lang.get('gravisuite.'+old,key)
+ lang['key.categories.gravisuite']='Gravisuite';lang['Gravi Fly Key']=lang.get('Gravi Fly Key','Gravi Fly Key')
+ dump(f,lang)
+dump(RES/'data/minecraft/tags/item/dyeable.json',{'replace':False,'values':['gravisuite:gravi_chestplate']})
+recipe('advanced_jetpack','advanced_jetpack',['CJC','BLB','GAG'],{'C':'ic2:carbon_plate','J':'ic2:electric_jetpack','B':'engine_booster','L':'advanced_lappack','G':'ic2:glass_fibre_cable','A':'ic2:advanced_circuit'},flag='advanced_jetpack')
+recipe('advanced_nano_chestplate','advanced_nano_chestplate',['CJC','CNC','GAG'],{'C':'ic2:carbon_plate','J':'advanced_jetpack','N':'ic2:nano_chestplate','G':'ic2:glass_fibre_cable','A':'ic2:advanced_circuit'},flag='advanced_nano_chestplate')
+recipe('gravi_chestplate','gravi_chestplate',['SAS','DBD','SCS'],{'S':'superconductor','A':'ic2:quantum_chestplate','D':'gravitation_engine','B':'ic2:hv_transformer','C':'ultimate_lappack'},flag='gravi_chestplate')
+# Recipes.changeQuantumRecipe: IC2's quantum chestplate from the advanced nano chestplate, or IC2's own when switched off
+ic2q=json.loads((ROOT.parent/'industrialcraft2-modern/src/generated/resources/data/ic2/recipe/quantum_chestplate.json').read_text())
+grav={'type':'ic2:shaped','category':'equipment','pattern':['ANA','ILI','IAI'],'key':{'N':{'item':'gravisuite:advanced_nano_chestplate'},'A':{'item':'ic2:advanced_alloy'},'I':{'item':'ic2:iridium_plate'},'L':{'item':'ic2:lapotron_crystal'}},'result':{'id':'ic2:quantum_chestplate','count':1}}
+dump(RES/'data/ic2/recipe/quantum_chestplate.json',{'type':'gravisuite:config_choice','key':'replaceQuantumRecipe','if_true':grav,'if_false':ic2q})
 print('Generated7components,2electricpacks,10nativeIC2charge-preserving recipes')

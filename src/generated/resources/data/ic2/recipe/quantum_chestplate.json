@@ -1,0 +1,61 @@
+{
+  "type": "gravisuite:config_choice",
+  "key": "replaceQuantumRecipe",
+  "if_true": {
+    "type": "ic2:shaped",
+    "category": "equipment",
+    "pattern": [
+      "ANA",
+      "ILI",
+      "IAI"
+    ],
+    "key": {
+      "N": {
+        "item": "gravisuite:advanced_nano_chestplate"
+      },
+      "A": {
+        "item": "ic2:advanced_alloy"
+      },
+      "I": {
+        "item": "ic2:iridium_plate"
+      },
+      "L": {
+        "item": "ic2:lapotron_crystal"
+      }
+    },
+    "result": {
+      "id": "ic2:quantum_chestplate",
+      "count": 1
+    }
+  },
+  "if_false": {
+    "type": "ic2:shaped",
+    "category": "misc",
+    "pattern": [
+      "AnA",
+      "ILI",
+      "IJI"
+    ],
+    "key": {
+      "J": {
+        "item": "ic2:electric_jetpack"
+      },
+      "n": {
+        "item": "ic2:nano_chestplate"
+      },
+      "I": {
+        "item": "ic2:iridium_plate"
+      },
+      "L": {
+        "item": "ic2:lapotron_crystal"
+      },
+      "A": {
+        "item": "ic2:advanced_alloy"
+      }
+    },
+    "result": {
+      "id": "ic2:quantum_chestplate",
+      "count": 1
+    }
+  }
+}

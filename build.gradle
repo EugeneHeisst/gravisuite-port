@@ -1,5 +1,5 @@
 plugins { id 'java-library'; id 'net.neoforged.moddev' version '2.0.148' }
-version = '0.1.1'
+version = '0.1.2'
 group = 'dev.eugheist'
 base { archivesName = 'gravisuite-modern' }
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
@@ -19,6 +19,12 @@ neoForge {
             gameDirectory = file('run-audit')
             programArguments.addAll '--width', '1280', '--height', '900', '--quickPlaySingleplayer', 'GraviAudit'
             systemProperty 'gravisuite.audit', 'client'
+        }
+        mpclient {
+            client()
+            gameDirectory = file('run-mp')
+            programArguments.addAll '--width', '1280', '--height', '900', '--quickPlayMultiplayer', '127.0.0.1:25585', '--username', 'GraviFlyer'
+            systemProperty 'gravisuite.audit', 'mpclient'
         }
     }
     mods { gravisuite { sourceSet sourceSets.main } }

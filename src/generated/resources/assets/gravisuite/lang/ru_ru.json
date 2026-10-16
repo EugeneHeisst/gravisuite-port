@@ -81,5 +81,10 @@
   "item.gravisuite.advanced_drill": "Улучшенный алмазный бур",
   "item.gravisuite.advanced_chainsaw": "Улучшенная цепная пила",
   "item.gravisuite.gravitool": "Гравитул",
-  "item.gravisuite.vajra": "Ваджра"
+  "item.gravisuite.vajra": "Ваджра",
+  "item.gravisuite.advanced_jetpack": "Улучшенный реактивный ранец",
+  "item.gravisuite.advanced_nano_chestplate": "Улучшенный нановолоконный нагрудник",
+  "item.gravisuite.gravi_chestplate": "Гравитационный нагрудник",
+  "key.categories.gravisuite": "Gravisuite",
+  "Gravi Fly Key": "Gravi Fly Key"
 }

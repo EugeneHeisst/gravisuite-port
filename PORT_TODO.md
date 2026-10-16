@@ -12,11 +12,11 @@
 - [x] Advanced chainsaw: powered combat and configurable block/entity shearing.
 - [x] GraviTool: hoe, treetap, wrench, screwdriver and changing model.
 - [x] Vajra: fast universal mining, accurate silk mode, combat.
-- [ ] Advanced jetpack, advanced nano chest, GraviChestPlate.
-- [ ] Fly key, hover/boost, original EU costs, native multiplayer anti-floating.
-- [ ] Nano water-cell extinguishing; Gravi fire immunity and dyeable textures.
-- [ ] Remaining original recipes and optional quantum-recipe replacement.
-- [ ] Original HUD and flight messages.
+- [x] Advanced jetpack, advanced nano chest, GraviChestPlate.
+- [x] Fly key, hover/boost, original EU costs, native multiplayer anti-floating.
+- [x] Nano water-cell extinguishing; Gravi fire immunity and dyeable textures.
+- [x] Remaining original recipes and optional quantum-recipe replacement.
+- [x] Original HUD and flight messages.
 - [ ] Combined IC2 / ASP / EMT / Gravi / TC4 / JEI client and dedicated server.
 
 Builds and checks are local; production is unchanged. No publication or deployment authorized.

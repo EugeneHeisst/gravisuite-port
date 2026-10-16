@@ -15,6 +15,7 @@ import java.nio.file.*;
 @EventBusSubscriber(modid=Gravisuite.MODID,value=Dist.CLIENT)
 public final class ClientAudit {
  private static int tick;
+ private static double flightStartY;
  private static void shot(Minecraft mc,String name){try(var image=Screenshot.takeScreenshot(mc.getMainRenderTarget())){image.writeToFile(Path.of("audit",name+".png"));}catch(Exception e){throw new RuntimeException(e);}}
  @SubscribeEvent static void tick(ClientTickEvent.Post event){if(!"client".equals(System.getProperty("gravisuite.audit")))return;var mc=Minecraft.getInstance();if(mc.player==null||mc.getSingleplayerServer()==null)return;tick++;var server=mc.getSingleplayerServer();
   if(tick==20)server.execute(()->{var p=server.getPlayerList().getPlayers().getFirst();p.getInventory().clearContent();for(var slot:EquipmentSlot.values())p.setItemSlot(slot,ItemStack.EMPTY);p.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);p.getAbilities().mayfly=true;p.getAbilities().flying=true;p.onUpdateAbilities();p.teleportTo(server.overworld(),.5,120,.5,0,0);int index=0;for(var entry:GraviItems.ITEMS.getEntries()){var s=new ItemStack(entry.get());if(s.getItem() instanceof ic2.api.item.IElectricItem)ic2.api.item.ElectricItem.manager.charge(s,2500000,4,true,false);p.getInventory().setItem(index++,s);}});
@@ -31,6 +32,20 @@ public final class ClientAudit {
   if(tick==118){for(int i=3;i<7;i++){var s=mc.player.getInventory().getItem(i);var sprite=mc.getItemRenderer().getModel(s,mc.level,mc.player,0).getParticleIcon(net.neoforged.neoforge.client.model.data.ModelData.EMPTY).contents().name().getPath();String want="items/gravitool/"+com.chocohead.gravisuite.items.ItemGraviTool.Mode.values()[i-3].name().toLowerCase(java.util.Locale.ROOT);Gravisuite.LOG.info("[gravisuite-client-audit] {} GraviTool mode model {} -> {}",sprite.equals(want)?"PASS":"FAIL",want,sprite);}}
   if(tick==120)mc.setScreen(new InventoryScreen(mc.player));
   if(tick==130){shot(mc,"tools");mc.setScreen(null);}
-  if(tick>=135)mc.stop();
+  // worn chest pieces (survival so the inventory screen shows the player)
+  String[] worn={"advanced_jetpack","advanced_nano_chestplate","gravi_chestplate","gravi_chestplate_red"};
+  if(tick>=140&&tick<180){int w=(tick-140)/10;int k=(tick-140)%10;
+   if(k==0)server.execute(()->{var p=server.getPlayerList().getPlayers().getFirst();var item=w==0?GraviItems.ADVANCED_JETPACK.get():w==1?GraviItems.ADVANCED_NANO_CHESTPLATE.get():GraviItems.GRAVI_CHESTPLATE.get();var s=new ItemStack(item);if(w==3)s.set(DataComponents.DYED_COLOR,new net.minecraft.world.item.component.DyedItemColor(0xB02E26,true));p.setItemSlot(EquipmentSlot.CHEST,s);});
+   if(k==2)mc.setScreen(new InventoryScreen(mc.player));
+   if(k==8){shot(mc,worn[w]+"_worn");mc.setScreen(null);}}
+  // real flight in singleplayer: Gravi Fly Key turns the engine on, jump climbs
+  if(tick==182)server.execute(()->{var p=server.getPlayerList().getPlayers().getFirst();p.getAbilities().flying=false;p.getAbilities().mayfly=false;p.onUpdateAbilities();p.setItemSlot(EquipmentSlot.CHEST,GraviItems.GRAVI_CHESTPLATE.get().charged());p.teleportTo(server.overworld(),.5,120,.5,0,0);});
+  if(tick>=186&&tick<190)com.chocohead.gravisuite.client.GraviClient.FLY_KEY.setDown(true);
+  if(tick==190)com.chocohead.gravisuite.client.GraviClient.FLY_KEY.setDown(false);
+  if(tick==192)flightStartY=mc.player.getY();
+  if(tick>=192&&tick<232)mc.options.keyJump.setDown(true);
+  if(tick==228)shot(mc,"gravi_flight");
+  if(tick==232){mc.options.keyJump.setDown(false);var chest=mc.player.getItemBySlot(EquipmentSlot.CHEST);double climbed=mc.player.getY()-flightStartY;Gravisuite.LOG.info("[gravisuite-client-audit] {} GraviChestPlate flight: engine {} climbed {} blocks",com.chocohead.gravisuite.items.ItemAdvancedElectricJetpack.isJetpackOn(chest)&&climbed>5?"PASS":"FAIL",com.chocohead.gravisuite.items.ItemAdvancedElectricJetpack.isJetpackOn(chest),climbed);}
+  if(tick>=236)mc.stop();
  }
 }
