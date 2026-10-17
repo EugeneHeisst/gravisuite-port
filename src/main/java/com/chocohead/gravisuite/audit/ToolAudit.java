@@ -126,6 +126,27 @@ public final class ToolAudit {
         for (int y = -1; y <= 1; y++) for (int z = -1; z <= 1; z++) if (l.getBlockState(c.offset(0, y, z)).isAir()) air++;
         check("big holes stops when the energy runs out", air == 3 && charge(weak) == 0, "air=" + air + " eu=" + charge(weak));
         clearDrops(l, c);
+        // a protection listener registered after the mod's own handlers (LOWEST, late) cancels only the aimed centre:
+        // the whole 3x3 must stay, with no drops and no EU, because the centre break was never approved
+        for (int y = -1; y <= 1; y++) for (int z = -1; z <= 1; z++) l.setBlock(c.offset(0, y, z), Blocks.STONE.defaultBlockState(), 3);
+        java.util.function.Consumer<BlockEvent.BreakEvent> late = e -> { if (e.getPos().equals(c)) e.setCanceled(true); };
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(net.neoforged.bus.api.EventPriority.LOWEST, late);
+        ItemStack lateDrill = charged(GraviItems.ADVANCED_DRILL.get(), 45000);
+        ItemAdvancedDrill.saveMode(lateDrill, ItemAdvancedDrill.DrillMode.BIG_HOLES);
+        pl.setItemInHand(InteractionHand.MAIN_HAND, lateDrill);
+        boolean broke;
+        try { broke = pl.gameMode.destroyBlock(c); } finally { net.neoforged.neoforge.common.NeoForge.EVENT_BUS.unregister(late); }
+        int stone = 0;
+        for (int y = -1; y <= 1; y++) for (int z = -1; z <= 1; z++) if (l.getBlockState(c.offset(0, y, z)).is(Blocks.STONE)) stone++;
+        check("a late protection cancel of the centre keeps all nine blocks, no drops, no EU", !broke && stone == 9 && count(l, c, Items.COBBLESTONE) == 0 && charge(lateDrill) == 45000,
+            "broke=" + broke + " stone=" + stone + " eu=" + charge(lateDrill));
+        pl.setItemInHand(InteractionHand.MAIN_HAND, lateDrill);
+        double lateBefore = charge(lateDrill);
+        pl.gameMode.destroyBlock(c);
+        int open = 0;
+        for (int y = -1; y <= 1; y++) for (int z = -1; z <= 1; z++) if (l.getBlockState(c.offset(0, y, z)).isAir()) open++;
+        check("without the cancel the same drill still clears the 3x3 for 9 x 160 EU", open == 9 && lateBefore - charge(lateDrill) == 9 * 160 && count(l, c, Items.COBBLESTONE) == 9, "open=" + open + " eu=" + (lateBefore - charge(lateDrill)));
+        clearDrops(l, c);
         for (int y = -1; y <= 1; y++) for (int z = -1; z <= 1; z++) l.setBlock(c.offset(0, y, z), Blocks.AIR.defaultBlockState(), 3);
 
         // ---------- advanced chainsaw

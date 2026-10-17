@@ -78,6 +78,9 @@ public class ItemAdvancedDrill extends ItemDrill {
 
     @Override
     public boolean mineBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity entity) {
+        // onBlockStartBreak of the original: ServerPlayerGameMode.destroyBlock calls mineBlock only after the centre's BreakEvent
+        // (every listener, including late protection ones) and its other checks have passed, before the centre is removed and paid.
+        if (!level.isClientSide && entity instanceof ServerPlayer player && readMode(stack) == DrillMode.BIG_HOLES) breakBigHole(player, stack, pos);
         if (state.getDestroySpeed(level, pos) != 0) {
             double cost = getEnergyCost(stack);
             if (entity != null) ElectricItem.manager.use(stack, cost, entity);
