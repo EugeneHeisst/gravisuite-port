@@ -38,17 +38,13 @@ public class ItemAdvancedElectricJetpack extends ItemArmorElectric implements IB
     public void onArmorTick(Level level, Player player, ItemStack stack) {
         byte toggleTimer = tag(stack).getByte("toggleTimer");
         if (GraviKeys.isFlyKeyDown(player) && toggleTimer == 0) {
-            toggleTimer = 10;
             CustomData.update(DataComponents.CUSTOM_DATA, stack, t -> t.putByte("toggleTimer", (byte)10));
             if (!level.isClientSide) {
                 boolean on = switchJetpack(stack);
                 GraviPower.message(player, Component.translatable("gravisuite.message.jetpackSwitch", GraviPower.onOff(on).copy().withStyle(on ? ChatFormatting.DARK_GREEN : ChatFormatting.DARK_RED)), ChatFormatting.YELLOW);
             }
         }
-        if (toggleTimer > 0 && !isJetpackOn(stack)) {
-            byte next = (byte)(toggleTimer - 1);
-            CustomData.update(DataComponents.CUSTOM_DATA, stack, t -> t.putByte("toggleTimer", next));
-        }
+        // JetpackLogic owns the shared hover/F cooldown, even when the engine cannot fly.
     }
 
     @Override public boolean isJetpackActive(ItemStack stack) { return isJetpackOn(stack); }

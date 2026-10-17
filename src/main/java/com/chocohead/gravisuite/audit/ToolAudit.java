@@ -182,13 +182,52 @@ public final class ToolAudit {
         pl.setItemInHand(InteractionHand.MAIN_HAND, vajra);
         pl.gameMode.destroyBlock(v);
         check("accurate Vajra harvests stone itself and puts its enchantments back", ItemVajra.isAccurate(vajra) && count(l, v, Items.STONE) == 1 && count(l, v, Items.COBBLESTONE) == 0
-            && EnchantmentHelper.getItemEnchantmentLevel(enchants.getOrThrow(Enchantments.SILK_TOUCH), vajra) == 0 && EnchantmentHelper.getItemEnchantmentLevel(enchants.getOrThrow(Enchantments.UNBREAKING), vajra) == 2, vajra.getEnchantments());
+            && EnchantmentHelper.getTagEnchantmentLevel(enchants.getOrThrow(Enchantments.SILK_TOUCH), vajra) == 0 && EnchantmentHelper.getItemEnchantmentLevel(enchants.getOrThrow(Enchantments.UNBREAKING), vajra) == 2, vajra.getEnchantments());
         clearDrops(l, v);
+
+        // Register after the normal subscribers so this really cancels AFTER the old temporary-silk BreakEvent hook.
+        java.util.function.Consumer<BlockEvent.BreakEvent> lateProtection = e -> { if (e.getPlayer() == pl && e.getPos().equals(v)) e.setCanceled(true); };
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(net.neoforged.bus.api.EventPriority.LOWEST, false, BlockEvent.BreakEvent.class, lateProtection);
+        l.setBlock(v, Blocks.STONE.defaultBlockState(), 3);
+        before = charge(vajra);
+        boolean denied;
+        try { denied = !pl.gameMode.destroyBlock(v); }
+        finally { net.neoforged.neoforge.common.NeoForge.EVENT_BUS.unregister(lateProtection); }
+        check("late protection cancellation never persists temporary silk or spends EU", denied && l.getBlockState(v).is(Blocks.STONE) && count(l, v, Items.STONE) == 0
+            && before == charge(vajra) && EnchantmentHelper.getTagEnchantmentLevel(enchants.getOrThrow(Enchantments.SILK_TOUCH), vajra) == 0
+            && EnchantmentHelper.getTagEnchantmentLevel(enchants.getOrThrow(Enchantments.UNBREAKING), vajra) == 2
+            && !vajra.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.EMPTY).copyTag().contains(ItemVajra.TEMP_SILK), vajra.getEnchantments());
+        modeSwitch(l, pl, vajra);
+        check("turning accurate mode off after a canceled break leaves no silk effect", !ItemVajra.isAccurate(vajra)
+            && EnchantmentHelper.getItemEnchantmentLevel(enchants.getOrThrow(Enchantments.SILK_TOUCH), vajra) == 0, vajra.getEnchantments());
+        modeSwitch(l, pl, vajra);
+
         vajra.enchant(enchants.getOrThrow(Enchantments.SILK_TOUCH), 1);
         l.setBlock(v, Blocks.STONE.defaultBlockState(), 3);
         pl.gameMode.destroyBlock(v);
-        check("a silk touch the player gave the Vajra stays at its level", EnchantmentHelper.getItemEnchantmentLevel(enchants.getOrThrow(Enchantments.SILK_TOUCH), vajra) == 1 && count(l, v, Items.STONE) == 1, vajra.getEnchantments());
+        check("a silk touch the player gave the Vajra stays at its level", EnchantmentHelper.getTagEnchantmentLevel(enchants.getOrThrow(Enchantments.SILK_TOUCH), vajra) == 1 && count(l, v, Items.STONE) == 1, vajra.getEnchantments());
         clearDrops(l, v);
+        modeSwitch(l, pl, vajra);
+        check("turning accurate mode off preserves the player's own silk touch", EnchantmentHelper.getItemEnchantmentLevel(enchants.getOrThrow(Enchantments.SILK_TOUCH), vajra) == 1, vajra.getEnchantments());
+
+        ItemStack lastUse = charged(GraviItems.VAJRA.get(), 3333);
+        modeSwitch(l, pl, lastUse);
+        l.setBlock(v, Blocks.STONE.defaultBlockState(), 3);
+        pl.gameMode.destroyBlock(v);
+        check("the last full Vajra operation still silk-harvests and has no permanent enchantment", charge(lastUse) == 0 && count(l, v, Items.STONE) == 1
+            && lastUse.getTagEnchantments().isEmpty(), lastUse.getTagEnchantments());
+        clearDrops(l, v);
+
+        ItemStack legacy = charged(GraviItems.VAJRA.get(), 10000);
+        legacy.enchant(enchants.getOrThrow(Enchantments.SILK_TOUCH), 10);
+        legacy.enchant(enchants.getOrThrow(Enchantments.UNBREAKING), 2);
+        net.minecraft.world.item.component.CustomData.update(net.minecraft.core.component.DataComponents.CUSTOM_DATA, legacy, t -> t.putInt(ItemVajra.TEMP_SILK, 2));
+        legacy.getItem().inventoryTick(legacy, l, pl, 0, false);
+        check("a saved legacy temporary silk is repaired without removing the player's own enchantments",
+            EnchantmentHelper.getTagEnchantmentLevel(enchants.getOrThrow(Enchantments.SILK_TOUCH), legacy) == 1
+                && EnchantmentHelper.getTagEnchantmentLevel(enchants.getOrThrow(Enchantments.UNBREAKING), legacy) == 2
+                && !legacy.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.EMPTY).copyTag().contains(ItemVajra.TEMP_SILK), legacy.getTagEnchantments());
+
         ItemStack flat = new ItemStack(GraviItems.VAJRA.get());
         com.chocohead.gravisuite.items.ItemVajra.isAccurate(flat);
         net.minecraft.world.item.component.CustomData.update(net.minecraft.core.component.DataComponents.CUSTOM_DATA, flat, t -> t.putBoolean("accurate", true));

@@ -60,3 +60,10 @@ Next: combined IC2 + ASP + EMT + Gravi + Thaumcraft + JEI compatibility (client 
 ## Stop point (Claude, 2026-10-17 ~00:20)
 
 User moved work to another session. Gravi is at 0.1.2 / 78016e0, clean tree. IC2 0.1.19 / 1641a91 adds ItemElectricTool.getEnergyCost(ItemStack); ItemAdvancedDrill.getEnergyCost already matches it and becomes an override once Gravi builds against 0.1.19. Next: the combined-compatibility batch described in ../CLAUDE_CONTINUE_PORTS.md (bump addons to IC2 0.1.19, EMT bore bridge to getEnergyCost, EMT authors field, combined server/client test).
+
+
+## Codex 2026-10-17 — Gravi 0.1.4
+
+Accurate Vajra now supplies Silk Touch through native gameplay enchantment hooks, never writes temporary enchantments during BreakEvent. Late cancellation keeps all user enchantments/charge; legacy temporary markers are repaired in inventory and dropped-item ticks. Engine/hover cooldown decrements once per native Pre tick even below10000EU or with engine disabled; true event-order and native FlyKeyPayload regression added.
+
+Server259/259; real MP allow-flight=false flight climbed103.2blocks, maxfloating26, and reset-disabled control kicked81ticks. Final build against IC2.23 + archive versions/0.1.4. Combined full-pack server29/29 and hidden JEI client14/14 passed. User-approved release/install proceeds; latest state ../CLAUDE_CONTINUE_PORTS.md.

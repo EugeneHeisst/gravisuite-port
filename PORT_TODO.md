@@ -17,6 +17,6 @@
 - [x] Nano water-cell extinguishing; Gravi fire immunity and dyeable textures.
 - [x] Remaining original recipes and optional quantum-recipe replacement.
 - [x] Original HUD and flight messages.
-- [ ] Combined IC2 / ASP / EMT / Gravi / TC4 / JEI client and dedicated server.
+- [x] Combined IC2 / ASP / EMT / Gravi / TC4 / JEI client and dedicated server.
 
 Builds and checks are local; production is unchanged. No publication or deployment authorized.

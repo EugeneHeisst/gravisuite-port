@@ -34,7 +34,24 @@ public final class FlightAudit {
     private static void keys(FakePlayer pl, Keyboard.Key... down) { int state = 0; for (var k : down) state |= 1 << k.ordinal(); Keyboard.processKeyUpdate(pl, state); }
     private static void wear(FakePlayer pl, ItemStack s) { pl.setItemSlot(EquipmentSlot.CHEST, s); }
     private static ItemStack charged(Item item, double eu) { ItemStack s = new ItemStack(item); ElectricItem.manager.charge(s, eu, Integer.MAX_VALUE, true, false); return s; }
-    private static void flyTick(FakePlayer pl) { ItemStack s = pl.getItemBySlot(EquipmentSlot.CHEST); ((ItemArmorElectric)s.getItem()).onArmorTick(pl.level(), pl, s); JetpackLogic.onArmorTick(pl.level(), pl, s, (IJetpack)s.getItem()); }
+    private static void flyTick(FakePlayer pl) {
+        // Actual subscriber order: JetpackLogic on Pre, IC2 ArmorEvents/item.onArmorTick on Post.
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new net.neoforged.neoforge.event.tick.PlayerTickEvent.Pre(pl));
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new net.neoforged.neoforge.event.tick.PlayerTickEvent.Post(pl));
+    }
+    private static void flyPayload(FakePlayer pl, boolean down) {
+        var buf = io.netty.buffer.Unpooled.buffer();
+        try {
+            GraviKeys.FlyKeyPayload.CODEC.encode(buf, new GraviKeys.FlyKeyPayload(down));
+            var payload = GraviKeys.FlyKeyPayload.CODEC.decode(buf);
+            var context = (net.neoforged.neoforge.network.handling.IPayloadContext)java.lang.reflect.Proxy.newProxyInstance(FlightAudit.class.getClassLoader(), new Class<?>[]{net.neoforged.neoforge.network.handling.IPayloadContext.class}, (proxy, method, args) -> {
+                if (method.getName().equals("player")) return pl;
+                throw new UnsupportedOperationException(method.getName());
+            });
+            GraviKeys.FlyKeyPayload.handle(payload, context);
+        } finally { buf.release(); }
+    }
+    private static int cooldown(ItemStack stack) { return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getByte("toggleTimer"); }
     private static void air(FakePlayer pl, double y) { pl.moveTo(-8.5, y, 40.5, 0, 0); pl.setOnGround(false); pl.setDeltaMovement(Vec3.ZERO); }
 
     public static void run(ServerLevel l, FakePlayer pl) {
@@ -107,6 +124,28 @@ public final class FlightAudit {
         keys(pl);
 
         // GraviChestPlate
+        ItemStack undercharged = charged(GraviItems.GRAVI_CHESTPLATE.get(), 9999);
+        wear(pl, undercharged);
+        air(pl, 110);
+        keys(pl);
+        flyPayload(pl, true);
+        flyTick(pl);
+        check("native F payload enables an undercharged Gravi engine without allowing flight", ItemAdvancedElectricJetpack.isJetpackOn(undercharged) && !((IJetpack)undercharged.getItem()).isJetpackActive(undercharged) && cooldown(undercharged) == 10 && charge(undercharged) == 9999, cooldown(undercharged));
+        flyPayload(pl, false);
+        flyTick(pl);
+        check("inactive Gravi engine cooldown decreases exactly once per native player tick", cooldown(undercharged) == 9, cooldown(undercharged));
+        flyPayload(pl, true);
+        flyTick(pl);
+        check("undercharged Gravi engine rejects F during the debounce", ItemAdvancedElectricJetpack.isJetpackOn(undercharged) && cooldown(undercharged) == 8, cooldown(undercharged));
+        flyPayload(pl, false);
+        for (int i = 0; i < 8; i++) flyTick(pl);
+        check("undercharged Gravi engine cooldown expires after ten native ticks", cooldown(undercharged) == 0 && ItemAdvancedElectricJetpack.isJetpackOn(undercharged) && charge(undercharged) == 9999, cooldown(undercharged));
+        flyPayload(pl, true);
+        flyTick(pl);
+        check("native F payload can turn the Gravi engine off without charging it", !ItemAdvancedElectricJetpack.isJetpackOn(undercharged) && cooldown(undercharged) == 10 && charge(undercharged) == 9999, charge(undercharged));
+        flyPayload(pl, false);
+        flyTick(pl);
+        check("disabled Gravi engine cooldown also decreases exactly once per native tick", cooldown(undercharged) == 9, cooldown(undercharged));
         ItemStack gravi = charged(GraviItems.GRAVI_CHESTPLATE.get(), 9999);
         ItemAdvancedElectricJetpack.switchJetpack(gravi);
         check("GraviChestPlate needs 10000 EU to fly", !((IJetpack)gravi.getItem()).isJetpackActive(gravi), charge(gravi));

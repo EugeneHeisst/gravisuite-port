@@ -85,10 +85,10 @@ public final class JetpackLogic {
 
     public static void onArmorTick(Level level, Player player, ItemStack stack, IJetpack jetpack) {
         boolean used = false;
+        CompoundTag nbt = tag(stack);
+        byte toggleTimer = nbt.getByte("toggleTimer");
         if (!stack.isEmpty() && jetpack.isJetpackActive(stack)) {
-            CompoundTag nbt = tag(stack);
             boolean hoverMode = nbt.getBoolean("hoverMode");
-            byte toggleTimer = nbt.getByte("toggleTimer");
             if (Keyboard.isJumpKeyDown(player) && Keyboard.isModeSwitchKeyDown(player) && toggleTimer == 0) {
                 toggleTimer = 10;
                 hoverMode = !hoverMode;
@@ -105,10 +105,12 @@ public final class JetpackLogic {
                     player.displayClientMessage(Component.literal("Hover Mode disabled."), false);
                 }
             }
-            if (!level.isClientSide && toggleTimer > 0) {
-                byte next = (byte)(toggleTimer - 1);
-                CustomData.update(DataComponents.CUSTOM_DATA, stack, t -> t.putByte("toggleTimer", next));
-            }
+        }
+        // This Pre-tick is the only countdown owner. F runs in the item's Post-tick;
+        // an enabled Gravi engine below its minimum charge must still expire its debounce.
+        if (!level.isClientSide && !stack.isEmpty() && toggleTimer > 0) {
+            byte next = (byte)(toggleTimer - 1);
+            CustomData.update(DataComponents.CUSTOM_DATA, stack, t -> t.putByte("toggleTimer", next));
         }
         if (level.isClientSide && player.isLocalPlayer()) lastJetpackUsedClient = used;
     }
