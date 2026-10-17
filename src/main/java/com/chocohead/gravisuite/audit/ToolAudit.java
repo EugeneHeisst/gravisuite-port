@@ -182,6 +182,19 @@ public final class ToolAudit {
         pl.gameMode.destroyBlock(leaves);
         check("shearing on: leaves drop themselves", count(l, leaves, Items.OAK_LEAVES) == 1, count(l, leaves, Items.OAK_LEAVES));
         clearDrops(l, leaves);
+        // original 3.1.1: ElectricItem.manager.use(..., player) refills from armour before the sheared drop is made
+        ItemStack lappack = charged(GraviItems.ULTIMATE_LAPPACK.get(), 1e6);
+        ItemStack oldChest = pl.getItemBySlot(EquipmentSlot.CHEST);
+        pl.setItemSlot(EquipmentSlot.CHEST, lappack);
+        ItemStack emptySaw = new ItemStack(GraviItems.ADVANCED_CHAINSAW.get());
+        pl.setItemInHand(InteractionHand.MAIN_HAND, emptySaw);
+        l.setBlock(leaves, Blocks.OAK_LEAVES.defaultBlockState().setValue(net.minecraft.world.level.block.LeavesBlock.PERSISTENT, true), 3);
+        pl.gameMode.destroyBlock(leaves);
+        double sawTotal = charge(pl.getMainHandItem()) + charge(pl.getItemBySlot(EquipmentSlot.CHEST));
+        check("empty advanced chainsaw + charged Ultimate Lappack shears the first leaf for exactly 100 EU", count(l, leaves, Items.OAK_LEAVES) == 1 && Math.abs(sawTotal - (1e6 - 100)) < 1e-6,
+            "leaves=" + count(l, leaves, Items.OAK_LEAVES) + " total=" + sawTotal);
+        clearDrops(l, leaves);
+        pl.setItemSlot(EquipmentSlot.CHEST, oldChest);
         sheep.discard();
         sheep2.discard();
 
