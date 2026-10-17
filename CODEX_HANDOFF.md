@@ -67,3 +67,10 @@ User moved work to another session. Gravi is at 0.1.2 / 78016e0, clean tree. IC2
 Accurate Vajra now supplies Silk Touch through native gameplay enchantment hooks, never writes temporary enchantments during BreakEvent. Late cancellation keeps all user enchantments/charge; legacy temporary markers are repaired in inventory and dropped-item ticks. Engine/hover cooldown decrements once per native Pre tick even below10000EU or with engine disabled; true event-order and native FlyKeyPayload regression added.
 
 Server259/259; real MP allow-flight=false flight climbed103.2blocks, maxfloating26, and reset-disabled control kicked81ticks. Final build against IC2.23 + archive versions/0.1.4. Combined full-pack server29/29 and hidden JEI client14/14 passed. User-approved release/install proceeds; latest state ../CLAUDE_CONTINUE_PORTS.md.
+
+
+## Codex isolated review — 0.1.5, 2026-10-17
+
+Branch codex/vajra-first-hit, worktree ~/Project/codex-reviews/gravisuite-modern; sharedmain/source/production untouched. NativeItem.onLeftClickEntity runs after AttackEntityEvent cancellation but before Player.attack reads cachedattributes. Refill fromarmor and refresh own heldattackmodifier there; hurtEnemy remains the sole6666EU payment and immediately refreshes spentmodifier. NativePartEntity parentLivingEntity supported, including vanillaDragonPart API shape.
+
+Baseline actualPlayer.attack emptyVajra+UltimateLappack did1damage for6666EU,261checks1fail. Fixed270/270 incl cancel/no-refill, failedhit/noEUloss, undercharged/finalpartialarmor, repeatedattackwithoutnativeequipmenttick, unequipcleanup,3nativePartEntity<Cow> parent/cancel/lastEU cases. BuildPASS, versions/0.1.5 JAR/SHA/logs. Compiled/standalone againstIC2.23; combinednewpack withIC2.24 willbecheckedbeforehandoff. No push/release/install. Remaining AOE latecancellation and chainsawfirstleafcopy findings: ~/Project/compat-test/GRAVI_REVIEW_NEXT.md.

@@ -16,6 +16,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
@@ -247,6 +248,7 @@ public final class ToolAudit {
         before = charge(vajra);
         vajra.getItem().hurtEnemy(vajra, zombie, pl);
         check("Vajra hits for 25 with 6666 EU, 1 when empty", vd == 24 && ed == 0 && before - charge(vajra) == 6666, vd + "/" + ed);
+        nativeVajraFirstHit(l, pl, o.offset(16, 0, 3));
 
         // ---------- GraviTool
         check("GraviTool 300000 EU / tier 2 / 10000 transfer", stats(GraviItems.GRAVITOOL.get(), 300000, 2, 10000), "gravitool");
@@ -317,6 +319,179 @@ public final class ToolAudit {
         check("screwdriver leaves other blocks (furnace) and the energy alone", l.getBlockState(m).getValue(FurnaceBlock.FACING) == Direction.NORTH && before == charge(tool), l.getBlockState(m));
         l.removeBlock(m, false);
         pl.getInventory().clearContent();
+    }
+
+    /** Actual Player.attack: its damage is calculated before Item.hurtEnemy refills the tool from armour. */
+    private static void nativeVajraFirstHit(ServerLevel level, FakePlayer player, BlockPos pos) {
+        player.getInventory().clearContent();
+        for (var slot : EquipmentSlot.values()) player.setItemSlot(slot, ItemStack.EMPTY);
+        player.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);
+        player.setOnGround(true);
+        player.setSprinting(false);
+        player.fallDistance = 0;
+        player.setDeltaMovement(Vec3.ZERO);
+        var tool = new ItemStack(GraviItems.VAJRA.get());
+        var pack = GraviItems.ULTIMATE_LAPPACK.get().charged();
+        player.setItemInHand(InteractionHand.MAIN_HAND, tool);
+        player.setItemSlot(EquipmentSlot.CHEST, pack);
+        var target = EntityType.COW.create(level);
+        target.getAttribute(Attributes.MAX_HEALTH).setBaseValue(100);
+        target.setHealth(100);
+        target.setNoAi(true);
+        target.moveTo(Vec3.atCenterOf(pos));
+        target.invulnerableTime = 0;
+        level.addFreshEntity(target);
+        try {
+            // FakePlayer.tick is a no-op. Invoke vanilla's equipment reconciliation, then provide a full attack cooldown.
+            var equipment = LivingEntity.class.getDeclaredMethod("detectEquipmentUpdates");
+            equipment.setAccessible(true);
+            equipment.invoke(player);
+            var cooldown = LivingEntity.class.getDeclaredField("attackStrengthTicker");
+            cooldown.setAccessible(true);
+            cooldown.setInt(player, 20);
+            check("native Vajra first-hit fixture starts with an empty tool, charged pack and full cooldown",
+                charge(tool) == 0 && charge(pack) == 6e7 && player.getAttackStrengthScale(.5f) == 1
+                    && player.getAttributeValue(Attributes.ATTACK_DAMAGE) == 1, "damage=" + player.getAttributeValue(Attributes.ATTACK_DAMAGE));
+            double totalBefore = charge(tool) + charge(pack);
+            float healthBefore = target.getHealth();
+            player.attack(target);
+            double spent = totalBefore - charge(tool) - charge(pack);
+            float damage = healthBefore - target.getHealth();
+            check("native first Vajra hit draws armour power before dealing 25 damage and spends exactly 6666 EU",
+                damage == 25 && spent == 6666, "damage=" + damage + " totalEU=" + spent + " tool=" + charge(tool) + " pack=" + charge(pack));
+
+            equipment.invoke(player); // record the first hit's refilled stack as a real equipment tick would
+            tool = new ItemStack(GraviItems.VAJRA.get());
+            pack = GraviItems.ULTIMATE_LAPPACK.get().charged();
+            player.setItemInHand(InteractionHand.MAIN_HAND, tool);
+            player.setItemSlot(EquipmentSlot.CHEST, pack);
+            equipment.invoke(player);
+            cooldown.setInt(player, 20);
+            target.setHealth(100);
+            target.invulnerableTime = 0;
+            java.util.function.Consumer<net.neoforged.neoforge.event.entity.player.AttackEntityEvent> cancel = event -> {
+                if (event.getEntity() == player && event.getTarget() == target) event.setCanceled(true);
+            };
+            net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(cancel);
+            try { player.attack(target); }
+            finally { net.neoforged.neoforge.common.NeoForge.EVENT_BUS.unregister(cancel); }
+            check("native canceled Vajra attack does not refill, damage or consume EU", target.getHealth() == 100 && charge(tool) == 0 && charge(pack) == 6e7
+                && player.getAttributeValue(Attributes.ATTACK_DAMAGE) == 1, "tool=" + charge(tool) + " pack=" + charge(pack));
+
+            target.setInvulnerable(true);
+            cooldown.setInt(player, 20);
+            totalBefore = charge(tool) + charge(pack);
+            player.attack(target);
+            check("native unsuccessful Vajra hit does not consume EU", target.getHealth() == 100 && charge(tool) + charge(pack) == totalBefore,
+                "tool=" + charge(tool) + " pack=" + charge(pack));
+            target.setInvulnerable(false);
+            equipment.invoke(player);
+
+            tool = charged(GraviItems.VAJRA.get(), 3333);
+            player.setItemInHand(InteractionHand.MAIN_HAND, tool);
+            player.setItemSlot(EquipmentSlot.CHEST, ItemStack.EMPTY);
+            equipment.invoke(player);
+            cooldown.setInt(player, 20);
+            target.setHealth(100);
+            target.invulnerableTime = 0;
+            player.attack(target);
+            check("native undercharged Vajra uses fist damage without consuming a partial payment", target.getHealth() == 99 && charge(tool) == 3333,
+                "damage=" + (100 - target.getHealth()) + " EU=" + charge(tool));
+
+            tool = charged(GraviItems.VAJRA.get(), 3666);
+            pack = charged(GraviItems.ULTIMATE_LAPPACK.get(), 3000);
+            player.setItemInHand(InteractionHand.MAIN_HAND, tool);
+            player.setItemSlot(EquipmentSlot.CHEST, pack);
+            equipment.invoke(player);
+            cooldown.setInt(player, 20);
+            target.setHealth(100);
+            target.invulnerableTime = 0;
+            player.attack(target);
+            check("native Vajra combines its final charge with partial armour power exactly once", target.getHealth() == 75 && charge(tool) == 0 && charge(pack) == 0
+                && player.getAttributeValue(Attributes.ATTACK_DAMAGE) == 1, "damage=" + (100 - target.getHealth()) + " tool=" + charge(tool) + " pack=" + charge(pack));
+
+            // No equipment reconciliation between these attacks: the previous powered modifier must already have expired.
+            cooldown.setInt(player, 20);
+            target.setHealth(100);
+            target.invulnerableTime = 0;
+            player.attack(target);
+            check("native second Vajra attack cannot reuse spent power before the next equipment tick", target.getHealth() == 99 && charge(tool) == 0 && charge(pack) == 0,
+                "damage=" + (100 - target.getHealth()));
+
+            tool = charged(GraviItems.VAJRA.get(), 10000);
+            player.setItemInHand(InteractionHand.MAIN_HAND, tool);
+            player.setItemSlot(EquipmentSlot.CHEST, ItemStack.EMPTY);
+            equipment.invoke(player);
+            player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+            equipment.invoke(player);
+            cooldown.setInt(player, 20);
+            target.setHealth(100);
+            target.invulnerableTime = 0;
+            player.attack(target);
+            check("native Vajra unequip leaves no attack modifier on the empty hand", player.getAttributeValue(Attributes.ATTACK_DAMAGE) == 1 && target.getHealth() == 99,
+                "damage=" + (100 - target.getHealth()));
+
+            // Same NeoForge PartEntity path as a dragon head: native Player.attack unwraps the living parent for hurtEnemy.
+            var part = new net.neoforged.neoforge.entity.PartEntity<net.minecraft.world.entity.animal.Cow>(target) {
+                @Override protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {}
+                @Override protected void readAdditionalSaveData(net.minecraft.nbt.CompoundTag tag) {}
+                @Override protected void addAdditionalSaveData(net.minecraft.nbt.CompoundTag tag) {}
+                @Override public boolean isPickable() { return true; }
+                @Override public boolean hurt(net.minecraft.world.damagesource.DamageSource source, float amount) { return getParent().hurt(source, amount); }
+            };
+            part.moveTo(target.position());
+            tool = new ItemStack(GraviItems.VAJRA.get());
+            pack = GraviItems.ULTIMATE_LAPPACK.get().charged();
+            player.setItemInHand(InteractionHand.MAIN_HAND, tool);
+            player.setItemSlot(EquipmentSlot.CHEST, pack);
+            equipment.invoke(player);
+            cooldown.setInt(player, 20);
+            target.setHealth(100);
+            target.invulnerableTime = 0;
+            totalBefore = charge(tool) + charge(pack);
+            player.attack(part);
+            spent = totalBefore - charge(tool) - charge(pack);
+            check("native multipart Vajra first hit refills before parent damage and pays once", target.getHealth() == 75 && spent == 6666,
+                "parentDamage=" + (100 - target.getHealth()) + " totalEU=" + spent);
+
+            equipment.invoke(player);
+            tool = new ItemStack(GraviItems.VAJRA.get());
+            pack = GraviItems.ULTIMATE_LAPPACK.get().charged();
+            player.setItemInHand(InteractionHand.MAIN_HAND, tool);
+            player.setItemSlot(EquipmentSlot.CHEST, pack);
+            equipment.invoke(player);
+            cooldown.setInt(player, 20);
+            target.setHealth(100);
+            target.invulnerableTime = 0;
+            java.util.function.Consumer<net.neoforged.neoforge.event.entity.player.AttackEntityEvent> cancelPart = event -> {
+                if (event.getEntity() == player && event.getTarget() == part) event.setCanceled(true);
+            };
+            net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(cancelPart);
+            try { player.attack(part); }
+            finally { net.neoforged.neoforge.common.NeoForge.EVENT_BUS.unregister(cancelPart); }
+            check("native multipart attack cancellation leaves parent and both EU stores unchanged", target.getHealth() == 100 && charge(tool) == 0 && charge(pack) == 6e7,
+                "tool=" + charge(tool) + " pack=" + charge(pack));
+
+            tool = charged(GraviItems.VAJRA.get(), 6666);
+            player.setItemInHand(InteractionHand.MAIN_HAND, tool);
+            player.setItemSlot(EquipmentSlot.CHEST, ItemStack.EMPTY);
+            equipment.invoke(player);
+            cooldown.setInt(player, 20);
+            player.attack(part);
+            check("native multipart final operation deals powered parent damage and clears its modifier", target.getHealth() == 75 && charge(tool) == 0
+                && player.getAttributeValue(Attributes.ATTACK_DAMAGE) == 1, "parentDamage=" + (100 - target.getHealth()) + " EU=" + charge(tool));
+        } catch (ReflectiveOperationException failure) {
+            throw new RuntimeException("Vajra native attack fixture", failure);
+        } finally {
+            target.discard();
+            player.getInventory().clearContent();
+            for (var slot : EquipmentSlot.values()) player.setItemSlot(slot, ItemStack.EMPTY);
+            try {
+                var equipment = LivingEntity.class.getDeclaredMethod("detectEquipmentUpdates");
+                equipment.setAccessible(true);
+                equipment.invoke(player);
+            } catch (ReflectiveOperationException failure) { throw new RuntimeException(failure); }
+        }
     }
 
     private static void check(String name, boolean ok, Object detail) { ServerAudit.check(name, ok, detail); }

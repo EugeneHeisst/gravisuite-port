@@ -130,9 +130,33 @@ public class ItemVajra extends ItemElectricTool {
         return ItemAttributeModifiers.builder().add(Attributes.ATTACK_DAMAGE, new AttributeModifier(BASE_ATTACK_DAMAGE_ID, damage, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND).build();
     }
 
+    /** Native Player.attack reads its equipment attributes before hurtEnemy can refill the weapon. */
+    @Override
+    public boolean onLeftClickEntity(ItemStack stack, Player player, Entity target) {
+        boolean livingTarget = target instanceof LivingEntity
+            || target instanceof net.neoforged.neoforge.entity.PartEntity<?> part && part.getParent() instanceof LivingEntity;
+        if (!player.level().isClientSide && livingTarget && player.getMainHandItem() == stack) {
+            ElectricItem.manager.chargeFromArmor(stack, player);
+            refreshAttackDamage(stack, player);
+        }
+        return false;
+    }
+
+    private void refreshAttackDamage(ItemStack stack, Player player) {
+        if (player.getMainHandItem() != stack) return;
+        var damage = player.getAttribute(Attributes.ATTACK_DAMAGE);
+        if (damage == null) return;
+        damage.removeModifier(BASE_ATTACK_DAMAGE_ID);
+        damage.addTransientModifier(new AttributeModifier(BASE_ATTACK_DAMAGE_ID,
+            ElectricItem.manager.canUse(stack, operationEnergyCost * 2) ? 24 : 0, AttributeModifier.Operation.ADD_VALUE));
+    }
+
     @Override
     public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
-        if (attacker instanceof Player) ElectricItem.manager.use(stack, operationEnergyCost * 2, attacker);
+        if (attacker instanceof Player player) {
+            ElectricItem.manager.use(stack, operationEnergyCost * 2, player);
+            if (!player.level().isClientSide) refreshAttackDamage(stack, player);
+        }
         return true;
     }
 
