@@ -1,6 +1,6 @@
-# Gravitation Suite PORT
+# Gravitation Suite UNOFFICIAL PORT
 
-Неофициальный порт **Gravitation Suite 3.1.1** (SeNtiMeL / Chocohead) на **Minecraft 1.21.1 / NeoForge 21.1.256**, аддон **IndustrialCraft 2 PORT 0.1.23**. Версия **0.1.5**.
+Неофициальный порт **Gravitation Suite 3.1.1** (SeNtiMeL / Chocohead) на **Minecraft 1.21.1 / NeoForge 21.1.256**, аддон **IndustrialCraft 2 UNOFFICIAL PORT 0.1.23**. Версия **0.1.5**.
 
 Семь компонентов, Advanced/Ultimate Lappack, Advanced Drill с четырьмя режимами и добычей 3×3, Advanced Chainsaw, GraviTool с четырьмя режимами, Vajra, Advanced Jetpack, Advanced NanoChestplate и GraviChestPlate. Сохранены исходные ёмкости/уровни EU, рецепты, режимы полёта/hover/boost, HUD, окраска Gravi и настройки рецептов. Клавиша F переключает двигатель; IC2 mode-switch + jump переключает hover.
 

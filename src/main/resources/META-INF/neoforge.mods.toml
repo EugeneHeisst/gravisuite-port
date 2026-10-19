@@ -4,7 +4,7 @@ license="Original Gravitation Suite assets and logic; unofficial port"
 [[mods]]
 modId="gravisuite"
 version="${version}"
-displayName="Gravitation Suite PORT"
+displayName="Gravitation Suite UNOFFICIAL PORT"
 authors="SeNtiMeL, Chocohead"
 description="Неофициальный порт Gravitation Suite 3.1.1 на Minecraft 1.21.1 (аддон IndustrialCraft 2 PORT). Unofficial port of Gravitation Suite 3.1.1 to Minecraft 1.21.1 (an IndustrialCraft 2 PORT addon)."
 [[dependencies.gravisuite]]
