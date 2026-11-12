@@ -1,13 +1,23 @@
 plugins { id 'java-library'; id 'net.neoforged.moddev' version '2.0.148' }
-version = '0.1.9'
+version = '0.1.10'
 group = 'dev.eugheist'
 base { archivesName = 'gravisuite-modern' }
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
-// the IC2 PORT jar this addon is built and tested against (archived by the IC2 project in versions/<ver>/)
-def ic2Jar = file("../industrialcraft2-modern/versions/${ic2_version}/industrialcraft2-modern-${ic2_version}.jar")
-def jeiJar = '/home/eugheist/.local/share/PrismLauncher/instances/1.21.1/minecraft/mods/jei-1.21.1-neoforge-19.57.0.451.jar'
+// Local addon JARs can be supplied without depending on an author's filesystem.
+def addonJar = { String propertyName, String environmentName, String artifactName ->
+    file(providers.gradleProperty(propertyName)
+        .orElse(providers.environmentVariable(environmentName))
+        .getOrElse("libs/${artifactName}"))
+}
+def ic2Jar = addonJar('ic2LocalJar', 'IC2_JAR', "industrialcraft2-modern-${ic2_version}.jar")
+def localJars = [ic2LocalJar: ic2Jar]
+def jeiLocalPath = providers.gradleProperty('jeiLocalJar').orElse(providers.environmentVariable('JEI_JAR'))
+def withJei = providers.gradleProperty('withJei').getOrElse('false').toBoolean()
+repositories {
+    maven { url = uri('https://maven.blamejared.com'); content { includeGroup 'mezz.jei' } }
+}
 neoForge {
     version = '21.1.256'
     parchment { mappingsVersion = '2024.11.17'; minecraftVersion = '1.21.1' }
@@ -31,7 +41,27 @@ neoForge {
 }
 dependencies {
     implementation files(ic2Jar)
-    compileOnly files(jeiJar)
-    if (providers.gradleProperty('withJei').getOrElse('false').toBoolean()) runtimeOnly files(jeiJar)
+    if (jeiLocalPath.isPresent()) {
+        def localJei = file(jeiLocalPath.get())
+        localJars['jeiLocalJar'] = localJei
+        compileOnly files(localJei)
+        if (withJei) runtimeOnly files(localJei)
+    } else {
+        compileOnly "mezz.jei:jei-1.21.1-common-api:${jei_version}"
+        compileOnly "mezz.jei:jei-1.21.1-neoforge-api:${jei_version}"
+        if (withJei) runtimeOnly "mezz.jei:jei-1.21.1-neoforge:${jei_version}"
+    }
 }
+// Fail with a useful setup message instead of hundreds of missing-class errors.
+def validateLocalDependencies = tasks.register('validateLocalDependencies') {
+    doLast {
+        localJars.each { propertyName, dependency ->
+            if (!dependency.isFile()) {
+                throw new GradleException("Missing addon JAR for ${propertyName}. Put the release JAR in libs/ or set -P${propertyName}=<path-to-jar>; see README.md.")
+            }
+        }
+    }
+}
+tasks.withType(JavaCompile).configureEach { dependsOn validateLocalDependencies }
+
 processResources { inputs.property 'version', version; inputs.property 'ic2_version', ic2_version; filesMatching('META-INF/neoforge.mods.toml') { expand version: version, ic2_version: ic2_version } }

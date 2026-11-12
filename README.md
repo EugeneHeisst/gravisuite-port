@@ -1,21 +1,29 @@
 # Gravitation Suite UNOFFICIAL PORT
 
-Неофициальный порт **Gravitation Suite 3.1.1** (SeNtiMeL / Chocohead) на **Minecraft 1.21.1 / NeoForge 21.1.256**, аддон **IndustrialCraft 2 UNOFFICIAL PORT 0.1.23**. Версия **0.1.5**.
+Неофициальный порт **Gravitation Suite 3.1.1** (SeNtiMeL / Chocohead) на **Minecraft 1.21.1 / NeoForge 21.1.256**. Текущая версия: **0.1.10**.
 
-Семь компонентов, Advanced/Ultimate Lappack, Advanced Drill с четырьмя режимами и добычей 3×3, Advanced Chainsaw, GraviTool с четырьмя режимами, Vajra, Advanced Jetpack, Advanced NanoChestplate и GraviChestPlate. Сохранены исходные ёмкости/уровни EU, рецепты, режимы полёта/hover/boost, HUD, окраска Gravi и настройки рецептов. Клавиша F переключает двигатель; IC2 mode-switch + jump переключает hover.
-
-В версии 0.1.4 точный режим Vajra использует игровые зачарования без записи временного Silk Touch в предмет; отменённая добыча сохраняет собственные зачарования. Переключатель двигателя снова работает и при заряде Gravi ниже 10000 EU.
-
-В версии0.1.5 пустая Vajra получает питание от надетого ранца до расчёта первого удара. Оплата6666EU выполняется один раз при попадании, а использованный бонус урона сразу обновляется. Проверены отмена, нехватка энергии, повторный удар без тика, снятие предмета и nativePartEntity с живым родителем.
+Семь компонентов, Advanced/Ultimate Lappack, Advanced Drill с четырьмя режимами и добычей 3×3, Advanced Chainsaw, GraviTool с четырьмя режимами, Vajra, Advanced Jetpack, Advanced NanoChestplate и GraviChestPlate. Сохранены исходные ёмкости и уровни EU, рецепты, режимы полёта, HUD, окраска Gravi и настройки рецептов. Клавиша F переключает двигатель; IC2 mode-switch + jump переключает hover.
 
 ## Совместимость
 
-**Sodium не поддерживается**, как и Iris, который работает поверх него. С ними возможны визуальные баги: неправильная отрисовка блоков, моделей, эффектов и интерфейса. Если что-то выглядит не так, сначала проверьте без Sodium и Iris и только потом сообщайте о баге.
+**Sodium и Iris не поддерживаются**: с ними возможны визуальные баги блоков, моделей, эффектов и интерфейса. Перед отправкой отчёта о такой проблеме проверьте игру без этих модов.
 
-## Сборка и проверки
+## Сборка
 
-Нужна Java 21. `./build.sh` собирает `build/libs/gravisuite-modern-0.1.5.jar`; `ic2_version` в `gradle.properties` указывает соседний архив IC2. Ресурсы уже включены, оригинал для сверки хранится в gitignored `related/`.
+Нужны **Java 21** и JAR **IndustrialCraft 2 UNOFFICIAL PORT 0.1.26 или новее**. По умолчанию ожидается `libs/industrialcraft2-modern-0.1.26.jar`. Версию ожидаемого JAR задаёт `ic2_version` в `gradle.properties`; другой путь можно передать через `-Pic2LocalJar=libs/ic2.jar` или переменную `IC2_JAR`.
 
-`JAVA_HOME=/usr/lib/jvm/java-21-openjdk JAVA_TOOL_OPTIONS=-Dgravisuite.audit=server ./gradlew runServer -q`: 270 серверных проверок. `./audit-client.sh -PwithJei=true`: скрытый беззвучный клиент. `./mp-flight-audit.sh`: выделенный сервер allow-flight=false, настоящий сетевой переключатель F и полёт; контроль без сброса счётчика отключается сервером.
+```sh
+./gradlew build
+```
 
-Проверены модели/надетые текстуры/HUD/окраска, сетевой подъём 103.2 блока без отключения и контрольный kick через 81 тик. Общий сервер со всеми портами и остальным набором модов: 29 проверок, клиент/JEI: 14. Архивы JAR/логи/скриншоты — `versions/<version>/`.
+Результат: `build/libs/gravisuite-modern-0.1.10.jar`. Все сгенерированные игровые ресурсы включены в репозиторий; для обычной сборки запуск генератора ресурсов не нужен.
+
+JEI необязателен в игре. При сборке его API загружается из официального Maven-репозитория BlameJared; `-PwithJei=true` добавляет JEI в среду разработки. Для сборки без скачивания JEI можно указать `-PjeiLocalJar=libs/jei.jar` или переменную `JEI_JAR`. Версия Maven-зависимости задаётся свойством `jei_version`.
+
+На Linux можно использовать `./build.sh`: скрипт сохраняет выбранный `JAVA_HOME`. На Windows используйте `gradlew.bat build` с Java 21. Локальные JAR в `libs/` не добавляются в Git.
+
+## Проверки
+
+`JAVA_TOOL_OPTIONS=-Dgravisuite.audit=server ./gradlew runServer` запускает серверные проверки инструментов, брони, рецептов и энергобаланса. Для серверных проверок требуется принять Minecraft EULA.
+
+`./audit-client.sh -PwithJei=true` запускает клиентские проверки в Xvfb без звука; нужен подготовленный тестовый мир `GraviAudit` в `run-audit/saves/`. `./mp-flight-audit.sh` проверяет сетевое переключение двигателя и полёт на выделенном сервере с `allow-flight=false`. Клиентские проверки требуют Xvfb и OpenAL. Результаты создаются в локальных папках `run-*`.

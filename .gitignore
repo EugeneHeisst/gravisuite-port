@@ -4,3 +4,10 @@ run*/
 *.log
 related/
 versions/
+/libs/
+AGENTS.md
+CLAUDE.md
+CLAUDE.local.md
+CODEX_HANDOFF.md
+.claude/
+.codex/
